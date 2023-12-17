@@ -1,0 +1,74 @@
+{
+  "title": "test",
+  "DC": {
+    "Vss": "5",
+    "Vdd": "0"
+  },
+  "Sig": {
+    "DC": "385",
+    "A": "35m",
+    "f": "1k"
+  },
+  "pmos": [
+    {
+      "name": "mos0",
+      "vt": "-0.5",
+      "kp": "70u",
+      "l": "10u",
+      "w": "10u",
+      "m": "1",
+      "lambda": "0.02",
+      "Rs": "10k",
+      "Rd": "100k",
+      "Rup": "1Meg",
+      "Rdown": "4Meg",
+      "C": "1u",
+      "in": "Vin",
+      "out": "Vd"
+    },
+    {
+      "name": "mos1",
+      "vt": "-0.5",
+      "kp": "70u",
+      "l": "10u",
+      "w": "10u",
+      "m": "10",
+      "lambda": "0.02",
+      "Rs": "100k",
+      "Rd": "330k",
+      "Rup": "2Meg",
+      "Rdown": "3Meg",
+      "C": "1u",
+      "in": "Vd0",
+      "out": "Vd"
+    },
+    {
+      "name": "mos2",
+      "vt": "-0.5",
+      "kp": "70u",
+      "l": "10u",
+      "w": "10u",
+      "m": "10",
+      "lambda": "0.02",
+      "Rs": "10",
+      "Rd": "0",
+      "Rup": "1Meg",
+      "Rdown": "1Meg",
+      "C": "1u",
+      "in": "Vd1",
+      "out": "Vs"
+    }
+  ],
+  "OUT": "Vs2",
+  "IN": "Vin",
+  "SIM": {
+    "OP": "1",
+    "GAIN": "1",
+    "POWER": "1",
+    "FOUR": "1",
+    "ZOUT": {
+      "enable": "1",
+      "value": "1m"
+    }
+  }
+}
