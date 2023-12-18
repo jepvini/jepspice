@@ -101,12 +101,15 @@ echo "Itest /$(jq -r .OUT "$IN") GND DC 0 AC 0" >> "$OUT"
 echo -e ".control" >> "$OUT"
 
 # Operating point
-[ "$OP" = "1" ] && echo -e "
+if [ "$OP" = "1" ];
+then
+  echo -e "
 op
 display
 print alli
 print allv
-" >> "$OUT"
+  " >> "$OUT"
+fi
 
 # Power
 [ "$POWER" = "1" ] && echo -e "
@@ -119,6 +122,7 @@ if [ "$GAIN" ];
 then
   echo -e "
 ac lin 1  $(jq -r .Sig.f "$IN") $(jq -r .Sig.f "$IN")
+print allv
 let Gain = \"/$(jq -r .OUT "$IN")\"/\"/$(jq -r .IN "$IN")\"
 print Gain
   " >> "$OUT"
@@ -130,12 +134,20 @@ print Gain
 fi
 
 # Four
-[ "$FOUR" = "1" ] && echo -e "
-
+if [ "$FOUR" = "1" ];
+then
+  echo -e "
 tran 1000n 5m
 linearize V(\"/$(jq -r .OUT "$IN")\")
-fourier 1k V(\"/$(jq -r .OUT "$IN")\")
-" >> "$OUT"
+fourier $(jq -r .Sig.f "$IN") V(\"/$(jq -r .OUT "$IN")\")
+  " >> "$OUT"
+  for i in $(seq 0 $(("$PMOS_N"-1)))
+  do
+    echo -e "tran 1000n 5m" >> "$OUT"
+    echo -e "linearize V(\"/$(jq -r .pmos["$i"].out "$IN")$i\")" >> "$OUT"
+    echo -e "fourier 1k V(\"/$(jq -r .pmos["$i"].out "$IN")$i\")" >> "$OUT"
+  done
+fi
 
 [ "$ZOUT" ] && echo -e "
 alter Itest AC = $(jq -r .SIM.ZOUT.value "$IN")
@@ -153,12 +165,17 @@ echo -e ".endc" >> "$OUT"
 
 echo -e ".end" >> "$OUT"
 
-cat ./test.net
+# cat ./test.net
 # run the simulation
 ngspice -o out -b test.net
 # cat ./out
 # grep section
-[ "$OP" = "1" ] && grep -m"$PMOS_N" "^/vd" < ./out
+if [ "$OP" = "1" ];
+then
+  grep -m"$PMOS_N" "^/vd" < ./out
+  echo
+fi
+
 echo
 [ "$GAIN" = "1" ] && grep "gain" < ./out | sed 's/,/ /' | awk '{print $1, $2, $3}'
 echo
@@ -167,5 +184,5 @@ echo
 [ "$POWER" = "1" ] && grep "power" < ./out
 echo
 [ "$FOUR" = "1" ] && grep "HD" < ./out | awk '{print $4, $5, $6}'
-[ "$FOUR" = "1" ] && grep -A11 "Harmonic Frequency   Magnitude   Phase       Norm. Mag   Norm. Phase" < ./out
+[ "$FOUR" = "1" ] && grep -m1 -A11 "Harmonic Frequency   Magnitude   Phase       Norm. Mag   Norm. Phase" < ./out
 echo
